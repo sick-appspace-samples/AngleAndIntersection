@@ -6,29 +6,21 @@ print('AppEngine Version: ' .. Engine.getVersion())
 local DELAY = 1000 -- ms between visualization steps for demonstration purpose
 
 -- Creating viewer
-local viewer = View.create("viewer2D1")
+local viewer = View.create()
 
 -- Setting up graphical overlay attributes
-local regionDecoration = View.ShapeDecoration.create()
+local regionDecoration = View.ShapeDecoration.create():setLineWidth(4)
 regionDecoration:setLineColor(230, 230, 0) -- Yellow
-regionDecoration:setLineWidth(4)
 
-local featureDecoration = View.ShapeDecoration.create()
-featureDecoration:setLineColor(75, 75, 255) -- Blue
-featureDecoration:setLineWidth(4)
-featureDecoration:setPointType('DOT')
-featureDecoration:setPointSize(5)
+local featureDecoration = View.ShapeDecoration.create():setLineWidth(4)
+featureDecoration:setPointType('DOT'):setPointSize(5):setLineColor(75, 75, 255) -- Blue
 
-local dotDecoration = View.ShapeDecoration.create()
-dotDecoration:setLineColor(230, 0, 0) -- Red
-dotDecoration:setPointType('DOT')
-dotDecoration:setPointSize(10)
+local dotDecoration = View.ShapeDecoration.create():setPointSize(10)
+dotDecoration:setPointType('DOT'):setLineColor(230, 0, 0) -- Red
 
-local angleTextDeco = View.TextDecoration.create()
-angleTextDeco:setSize(20)
+local angleTextDeco = View.TextDecoration.create():setSize(20)
 
-local intersectionTextDeco = View.TextDecoration.create()
-intersectionTextDeco:setSize(15)
+local intersectionTextDeco = View.TextDecoration.create():setSize(15)
 
 --End of Global Scope-----------------------------------------------------------
 
@@ -37,7 +29,7 @@ intersectionTextDeco:setSize(15)
 local function main()
   local img = Image.load('resources/AngleAndIntersection.bmp')
   viewer:clear()
-  local imageID = viewer:addImage(img)
+  viewer:addImage(img)
   viewer:present()
   Script.sleep(DELAY) -- for demonstration purpose only
 
@@ -50,8 +42,8 @@ local function main()
   local angle1 = math.rad(90 - 25)
   local edge1segm, _ = edgeFitter:fitLine(img, edgeRect1:toPixelRegion(img), angle1)
   local line1 = edge1segm:toLine()
-  viewer:addShape(edge1segm, featureDecoration, nil, imageID)
-  viewer:addShape(edgeRect1, regionDecoration, nil, imageID)
+  viewer:addShape(edge1segm, featureDecoration)
+  viewer:addShape(edgeRect1, regionDecoration)
 
   -- Fitting edge2 (right)
   local edgeCenter2 = Point.create(450, 170)
@@ -59,8 +51,8 @@ local function main()
   local angle2 = math.rad(-90 + 25)
   local edge2segm, _ = edgeFitter:fitLine(img, edgeRect2:toPixelRegion(img), angle2)
   local line2 = edge2segm:toLine()
-  viewer:addShape(edge2segm, featureDecoration, nil, imageID)
-  viewer:addShape(edgeRect2, regionDecoration, nil, imageID)
+  viewer:addShape(edge2segm, featureDecoration)
+  viewer:addShape(edgeRect2, regionDecoration)
 
   -- Finding intersection and measuring angle
   local intersection = line1:getIntersectionPoints(line2)
@@ -71,19 +63,17 @@ local function main()
   local endpoints2 = edge2segm:getContourPoints()
   local lineSegm1 = Shape.createLineSegment(endpoints1[1], intersection[1])
   local lineSegm2 = Shape.createLineSegment(endpoints2[1], intersection[1])
-  viewer:addShape(lineSegm1, featureDecoration, nil, imageID)
-  viewer:addShape(lineSegm2, featureDecoration, nil, imageID)
-  for _, point in ipairs(intersection) do
-    viewer:addShape(point, dotDecoration, nil, imageID)
-  end
+  viewer:addShape(lineSegm1, featureDecoration)
+  viewer:addShape(lineSegm2, featureDecoration)
+  viewer:addShape(intersection, dotDecoration)
 
   angleTextDeco:setPosition(260, 140)
-  viewer:addText('a = ' .. (180 - math.floor(10 * math.deg(angle)) / 10), angleTextDeco, nil, imageID)
+  viewer:addText('a = ' .. (180 - math.floor(10 * math.deg(angle)) / 10), angleTextDeco)
 
   local x = math.floor(intersection[1]:getX() * 10) / 10
   local y = math.floor(intersection[1]:getY() * 10) / 10
   intersectionTextDeco:setPosition(285, 75)
-  viewer:addText('(x,y) = ' .. x .. ',' .. y, intersectionTextDeco, nil, imageID)
+  viewer:addText('(x,y) = ' .. x .. ',' .. y, intersectionTextDeco)
   viewer:present()
 
   print('Intersection (x,y): ' ..  x .. ',' .. y .. ' Angle: ' .. (180 - math.floor(10 * math.deg(angle)) / 10))
